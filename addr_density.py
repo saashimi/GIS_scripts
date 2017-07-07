@@ -48,12 +48,5 @@ for featureClass in fileList:
 # check in Spatial Analyst license
 arcpy.CheckInExtension("Spatial")
 
-"""
-in_raster = foldername + "kdmap"
-out_raster = "kdmap_proj.tif"
-in_coor_system = 
-out_coor_system = arcpy.SpatialReference(2913) # WKID 2913 StatePlane OR N
-arcpy.ProjectRaster_management (in_raster, out_raster, out_coor_system)
-"""
 print "Script executed successfully."
 
