@@ -1,6 +1,7 @@
 # Name: addr_density.py
 # Python 2.7 script
-# Generates a Kernel density map of student addresses.
+# Generates a Kernel density map of student addresses. Requires Spatial Analyst 
+# license.
 
 import arcinfo, arcpy
 arcpy.CheckOutExtension("Spatial")
