@@ -4,3 +4,5 @@ sourceLayer = "C:/Users/kms22/Desktop/compy_desktop/data_holding/address_geocode
 
 for lyr in arcpy.mapping.ListLayers(mxd, 'Full Time Students', df)[0]:
     arcpy.ApplySymbologyFromLayer_management(lyr, sourceLayer)
+
+
