@@ -11,7 +11,7 @@ import timeit
 mxd = arcpy.mapping.MapDocument("CURRENT")
 kate = "V:/allStreetsNetwork/allModes/shp/2015_Kate_101117_link.shp"
 bike = "V:/allStreetsNetwork/allModes/shp/test_bike.shp"
-fields = ["FID", "START_Y", "START_X", "END_Y", "END_X", "LEN_FT"]
+fields = ["NO", "START_Y", "START_X", "END_Y", "END_X", "LEN_FT"]
 
 # Loop through feature classes
 kate_rows = arcpy.SearchCursor(kate, fields)
@@ -20,6 +20,7 @@ tolerance_ft = 15.0
 
 start_time = timeit.default_timer()
 hits = 0
+NOs = []
 for bike_row in bike_rows:    
     for kate_row in kate_rows:
         if (abs(kate_row.getValue("START_Y") - bike_row.getValue("START_Y")) <= tolerance_ft or
@@ -27,12 +28,17 @@ for bike_row in bike_rows:
             abs(kate_row.getValue("END_Y") - bike_row.getValue("END_Y")) <= tolerance_ft or
             abs(kate_row.getValue("END_X") - bike_row.getValue("END_X")) <= tolerance_ft):
             hits += 1
-            exp = "\"FID\" = " + str(kate_row.getValue("FID"))
-            arcpy.SelectLayerByAttribute_management("2015_Kate_101117_link", "ADD_TO_SELECTION", exp)
+            NOs.append(kate_row.getValue("NO"))
+        
         else:
             continue
-    elapsed = timeit.default_timer() - start_time
+
+exp = '"NO" IN (' + ','.join(map(str, NOs)) + ')'
+arcpy.SelectLayerByAttribute_management("2015_Kate_101117_link", "NEW_SELECTION", exp)
+
+    
+elapsed = timeit.default_timer() - start_time
 print str(hits) + " hits"
-print str(elapsed) + " seconds"
+print str(elapsed/60.0) + " minutes"
 
 
