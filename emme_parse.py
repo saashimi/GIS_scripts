@@ -13,8 +13,6 @@ def main(filename):
 
     for num in range(len(headings)):
         df_temp = df[headings[num]]
-        blank_row = pd.Series([""], index=df[headings[num]])
-        df_final = df_temp.append(blank_row)
         np.savetxt(headings[num]+'.txt', df_temp.values, fmt='%s', newline='\n')
 
 if __name__ == '__main__':
