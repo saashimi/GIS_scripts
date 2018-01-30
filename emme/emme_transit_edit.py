@@ -1,8 +1,8 @@
 import re
 
-search_transit_line = '12TPa'
-search_stop_init = '57739'
-search_stop_end = '80359'
+search_transit_line = '68C'
+search_stop_init = '80356'
+search_stop_end = '61081'
 insert_string = 'dwt=*.01  ttf=11'
 
 always_print = False # Initial flag state
@@ -26,17 +26,15 @@ with open('d221.2015_RTP18_pm2', 'r') as src:
                     if ttf and dwt:
                         revert_string = dwt + '  ' + ttf
                         dest.write(line.replace(search_stop_end, search_stop_end + '\n   ' + revert_string))
+               
+                elif "lay=0" in line:
+                    dest.write(line)
+                    always_print=False
+
                 else: 
-                    """
-                    if ttf:
-                        dest.write(line.replace(ttf, ''))
-                    if dwt:
-                        dest.write(line.replace(dwt, ''))
-                    """
                     dest.write(line)
                     always_print=True
 
-                if "lay=0" in line:
-                    always_print=False
+
 src.close()
 dest.close()
