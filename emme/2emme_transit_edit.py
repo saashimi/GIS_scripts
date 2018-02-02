@@ -18,13 +18,18 @@ def line_to_list_generator(list_in):
 
 def sublist_writer(list_in):
     str = ''
+    last_line=False
     for item in list_in:
         if item.startswith(('dwt', 'ttf')):
             column = ' {:^9}'.format(item) # note leading space
         else:
+            if item == 'lay=0':
+                last_line=True
             column = '{:>9} '.format(item) # note trailing space
         str = str + column
-    str = str + '\n'
+    if not last_line:
+        # newlines for every line except last one
+        str = str + '\n' 
     dest.write(str)
 
 def network_parser(list_in):
