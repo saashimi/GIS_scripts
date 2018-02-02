@@ -1,16 +1,18 @@
-import re
-
+##################################
+# TODO: Develop payload system to systematize bulk changes
 search_transit_line = '12TPa'
 search_stop_init = '57739'
 search_stop_end = '80359'
-insert_string = 'dwt=*.01  ttf=11'
-
+new_dwt = 'dwt=*.01' 
+new_ttf = 'ttf=11'
+##################################
 
 def line_as_list(line_in):  
     return filter(None, line_in.rstrip().split(' '))
 
 def line_to_list_generator(list_in):
-    # generates sublists of len 7
+    # Breaks list of network stops into sublists of len 7 for easy writefile
+    # formatting.  
     for i in xrange(0, len(list_in), 7):
         yield list_in[i:i + 7]    
 
@@ -23,69 +25,72 @@ def sublist_writer(list_in):
     str = str + '\n'
     dest.write(str)
 
+def network_parser(list_in):
+    # main dwt, ttf parser
+    # make list edits by slicing into the main network stop list.
+    # TODO: check edge case if multiple instances of init and end stops
+    current_dwt = ''
+    current_ttf = ''
+    edit_network = []
+    init_index = list_in.index(search_stop_init)
+    end_index = list_in.index(search_stop_end) + 1
+    for item in list_in:
+        if 'dwt' in item:
+            current_dwt = item
+        if 'ttf' in item:
+            current_ttf = item
+        if search_stop_init == item:
+            edit_network = list_in[init_index:end_index]
+    return edit_network, current_dwt, current_ttf, init_index, end_index
 
-# Initial flag states
+def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, index_end):
+    # create the edited network as a separate list
+    new_network = []
+    new_network.append(new_dwt)
+    new_network.append(new_ttf)
+    for item in network_slice:
+        if not item.startswith(('dwt', 'ttf')):
+            new_network.append(item)
+    new_network.append(dwt_in)
+    new_network.append(ttf_in)
+
+    # splice the edited network into the original_network 
+    del orig_network[index_start:index_end]
+    counter = 0
+    for item in new_network:
+        print counter
+        orig_network.insert(index_start + counter, item)
+        counter +=1
+    return orig_network
+
+# Initial flag and list states
 parse_following_lines=False
-always_write=False 
-inside_stop=False
 temp_list = []
 with open('d221.2015_RTP18_pm2', 'r') as src:
     with open('2test_out', 'w') as dest:
         for line in src:
-            # Write header row and break loop if transit line of interest
+            # Writes header row and breaks loop if transit line of interest
             if "a'{0}".format(search_transit_line) in line: 
                 dest.write(line)
                 parse_following_lines=True
                 continue
 
             if parse_following_lines:
+                # Converts raw text lines into list items
                 line_list = line_as_list(line)
                 for item in line_list:
                     temp_list.append(item)
            
             if parse_following_lines and 'lay=0' in line:            
+                # Begin parsing accumulated list items
+                parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list)
+                edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e)
                 parse_following_lines=False
-                generated = line_to_list_generator(temp_list)
+                generated = line_to_list_generator(edited_network)
                 for sublist in generated:
                     sublist_writer(sublist)
                 temp_list = []
 
-
-
-                #for subitem in item:
-                #    dest.write(subitem + ' ')     
-            
-            """
-            if search_stop_end in line:
-                line_list = line_as_list(line)
-                parse_following_lines=False
-            
-
-            """
-            
-            """
-            else:
-                dest.write(line)
-            """
-
-            """
-            # In final stage, we need to write all lines.
-            else:
-                dest.write(line)
-                always_print=True
-            """
-
-            """
-            else: 
-                if inside_stop:
-                    parsed_line = dwt_ttf_search_and_replace(ttf, dwt, line)
-                    dest.write(parsed_line)
-                    always_print=True
-
-                else:
-                    dest.write(line)
-                    always_print=True 
-            """
 
 src.close()
 dest.close()
