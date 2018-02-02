@@ -1,8 +1,8 @@
 ##################################
 # TODO: Develop payload system to systematize bulk changes
-search_transit_line = '12TPa'
-search_stop_init = '57739'
-search_stop_end = '80359'
+search_transit_line = '68C'
+search_stop_init = '80356'
+search_stop_end = '61081'
 new_dwt = 'dwt=*.01' 
 new_ttf = 'ttf=11'
 ##################################
