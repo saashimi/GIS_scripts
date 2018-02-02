@@ -17,10 +17,12 @@ def line_to_list_generator(list_in):
         yield list_in[i:i + 7]    
 
 def sublist_writer(list_in):
-    #TODO: WATCH FOR EDGE CASES > 9 CHAR in length
     str = ''
     for item in list_in:
-        column = '{:>9} '.format(item)
+        if item.startswith(('dwt', 'ttf')):
+            column = ' {:^9}'.format(item) # note leading space
+        else:
+            column = '{:>9} '.format(item) # note trailing space
         str = str + column
     str = str + '\n'
     dest.write(str)
@@ -32,7 +34,7 @@ def network_parser(list_in):
     current_dwt = ''
     current_ttf = ''
     edit_network = []
-    init_index = list_in.index(search_stop_init)
+    init_index = list_in.index(search_stop_init) + 1
     end_index = list_in.index(search_stop_end) + 1
     for item in list_in:
         if 'dwt' in item:
@@ -58,9 +60,13 @@ def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, ind
     del orig_network[index_start:index_end]
     counter = 0
     for item in new_network:
-        print counter
         orig_network.insert(index_start + counter, item)
         counter +=1
+    
+    # delete existing dwt, ttf right before edited stop
+    if orig_network[index_start - 2].startswith(('dwt','ttf')):
+        del orig_network[index_start - 2]
+
     return orig_network
 
 # Initial flag and list states
