@@ -1,17 +1,6 @@
 import sys
 import csv
 
-"""
-##################################
-# TODO: Develop payload system to systematize bulk changes
-edit_transit_line = '12TPa'
-init_stop_ID = '57738' # new ttf, dwt inserted BEFORE this stop
-end_stop_ID = '80359'  # previous ttf, dwt inserted AFTER this stop
-new_dwt = 'dwt=*.01' 
-new_ttf = 'ttf=11'
-##################################
-"""
-
 def line_as_list(line_in):  
     return filter(None, line_in.rstrip().split(' '))
 
@@ -68,7 +57,6 @@ def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, ind
     # delete existing dwt, ttf right before edited stop
     if orig_network[index_start - 2].startswith(('dwt','ttf')):
         del orig_network[index_start - 2]
-
     return orig_network
 
 def main(network_file, edit_payload):
@@ -78,6 +66,7 @@ def main(network_file, edit_payload):
     temp_list = []
 
     with open(network_file, 'r') as src:
+        lines = src.read().splitlines(True)
         with open(edit_payload, 'rb') as edits:
             with open(edited_file, 'w') as dest:
                 reader = csv.reader(edits)
@@ -88,9 +77,8 @@ def main(network_file, edit_payload):
                     end_stop_ID = row[2]  # previous ttf, dwt inserted AFTER this stop
                     new_dwt = row[3] 
                     new_ttf = row[4]
-                    print edit_transit_line, init_stop_ID, end_stop_ID, new_dwt, new_ttf
 
-                    for line in src:
+                    for line in lines:
                         # Writes header row and breaks loop if transit line of interest
                         if "a'{0}".format(edit_transit_line) in line: 
                             dest.write(line)
@@ -113,13 +101,19 @@ def main(network_file, edit_payload):
                             temp_list = []
                             parse_following_lines=False
 
-                        if not parse_following_lines:
-                            if 'lay=0' not in line:
-                                dest.write(line)
+                        #if not parse_following_lines:
+                        #    if 'lay=0' not in line:
+                        #        dest.write('\n')
+
 
     edits.close()
     src.close()
     dest.close()
+
+    with open(edited_file, 'w') as dest:
+        dest.writelines([item for item in final_lines[:-1]])
+    dest.close()
+
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
