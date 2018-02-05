@@ -110,10 +110,5 @@ def main(network_file, edit_payload):
     src.close()
     dest.close()
 
-    with open(edited_file, 'w') as dest:
-        dest.writelines([item for item in final_lines[:-1]])
-    dest.close()
-
-
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
