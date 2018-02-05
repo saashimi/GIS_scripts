@@ -1,4 +1,7 @@
+import sys
+import csv
 
+"""
 ##################################
 # TODO: Develop payload system to systematize bulk changes
 edit_transit_line = '12TPa'
@@ -7,6 +10,7 @@ end_stop_ID = '80359'  # previous ttf, dwt inserted AFTER this stop
 new_dwt = 'dwt=*.01' 
 new_ttf = 'ttf=11'
 ##################################
+"""
 
 def line_as_list(line_in):  
     return filter(None, line_in.rstrip().split(' '))
@@ -27,28 +31,28 @@ def sublist_writer(list_in):
         str = str + column
     return str + '\n'
 
-def network_parser(list_in):
+def network_parser(list_in, init_stop_in, end_stop_in):
     # main dwt, ttf parser
     # make list edits by slicing into the main network stop list.
     # TODO: check edge case if multiple instances of init and end stops
     current_dwt = ''
     current_ttf = ''
     edit_network = []
-    init_index = list_in.index(init_stop_ID)
-    end_index = list_in.index(end_stop_ID) + 1
+    init_index = list_in.index(init_stop_in)
+    end_index = list_in.index(end_stop_in) + 1
     for item in list_in:
         if 'dwt' in item:
             current_dwt = item
         if 'ttf' in item:
             current_ttf = item
-        if init_stop_ID == item:
+        if init_stop_in == item:
             edit_network = list_in[init_index:end_index]
     return edit_network, current_dwt, current_ttf, init_index, end_index
 
-def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, index_end):
+def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, index_end, edit_dwt_in, edit_ttf_in):
     # create the edited network as a separate list
     new_network = []
-    new_network.extend((new_dwt, new_ttf))
+    new_network.extend((edit_dwt_in, edit_ttf_in))
     for item in network_slice:
         if not item.startswith(('dwt', 'ttf')):
             new_network.append(item)
@@ -67,41 +71,55 @@ def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, ind
 
     return orig_network
 
-def main():
+def main(network_file, edit_payload):
     # Initial flag and list states
+    edited_file = network_file + '_edit'
     parse_following_lines=False
     temp_list = []
-    with open('d221.2015_RTP18_pm2', 'r') as src:
-        with open('2test_out', 'w') as dest:
-            for line in src:
-                # Writes header row and breaks loop if transit line of interest
-                if "a'{0}".format(edit_transit_line) in line: 
-                    dest.write(line)
-                    parse_following_lines=True
-                    continue
 
-                if parse_following_lines:
-                    # Converts raw text lines into list items
-                    line_list = line_as_list(line)
-                    for item in line_list:
-                        temp_list.append(item)
-               
-                if parse_following_lines and 'lay=0' in line:            
-                    # Begin parsing accumulated list items
-                    parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list)
-                    edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e)
-                    generated = line_to_list_generator(edited_network)
-                    for sublist in generated:
-                        dest.write(sublist_writer(sublist))
-                    temp_list = []
-                    parse_following_lines=False
+    with open(network_file, 'r') as src:
+        with open(edit_payload, 'rb') as edits:
+            with open(edited_file, 'w') as dest:
+                reader = csv.reader(edits)
+                next(reader) # skip the header row
+                for row in reader:
+                    edit_transit_line = row[0]
+                    init_stop_ID = row[1] # new ttf, dwt inserted BEFORE this stop
+                    end_stop_ID = row[2]  # previous ttf, dwt inserted AFTER this stop
+                    new_dwt = row[3] 
+                    new_ttf = row[4]
+                    print edit_transit_line, init_stop_ID, end_stop_ID, new_dwt, new_ttf
 
-                if not parse_following_lines:
-                    if 'lay=0' not in line:
-                        dest.write(line)
+                    for line in src:
+                        # Writes header row and breaks loop if transit line of interest
+                        if "a'{0}".format(edit_transit_line) in line: 
+                            dest.write(line)
+                            parse_following_lines=True
+                            continue
 
+                        if parse_following_lines:
+                            # Converts raw text lines into list items
+                            line_list = line_as_list(line)
+                            for item in line_list:
+                                temp_list.append(item)
+                       
+                        if parse_following_lines and 'lay=0' in line:            
+                            # Begin parsing accumulated list items
+                            parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list, init_stop_ID, end_stop_ID)
+                            edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e, new_ttf, new_dwt)
+                            generated = line_to_list_generator(edited_network)
+                            for sublist in generated:
+                                dest.write(sublist_writer(sublist))
+                            temp_list = []
+                            parse_following_lines=False
+
+                        if not parse_following_lines:
+                            if 'lay=0' not in line:
+                                dest.write(line)
+
+    edits.close()
     src.close()
     dest.close()
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2])
