@@ -54,19 +54,17 @@ def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, ind
     # create the edited network as a separate list
     new_network = []
     new_network.extend(new_dwt, new_ttf)
-    #new_network.append(new_ttf)
     for item in network_slice:
         if not item.startswith(('dwt', 'ttf')):
             new_network.append(item)
-    new_network.append(dwt_in)
-    new_network.append(ttf_in)
+    new_network.extend(dwt_in, ttf_in)
 
     # splice the edited network into the original_network 
     del orig_network[index_start:index_end]
     counter = 0
     for item in new_network:
         orig_network.insert(index_start + counter, item)
-        counter +=1
+        counter += 1
     
     # delete existing dwt, ttf right before edited stop
     if orig_network[index_start - 2].startswith(('dwt','ttf')):
