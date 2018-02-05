@@ -66,7 +66,8 @@ def main(network_file, edit_payload):
     temp_list = []
 
     with open(network_file, 'r') as src:
-        lines = src.read().splitlines(True)
+        # Allow for looping through orig. network file
+        lines = src.read().splitlines(True) 
         with open(edit_payload, 'rb') as edits:
             with open(edited_file, 'w') as dest:
                 reader = csv.reader(edits)
@@ -101,10 +102,10 @@ def main(network_file, edit_payload):
                             temp_list = []
                             parse_following_lines=False
 
-                        #if not parse_following_lines:
-                        #    if 'lay=0' not in line:
-                        #        dest.write('\n')
-
+                        """
+                        if not parse_following_lines:
+                                dest.write(line)
+                        """
 
     edits.close()
     src.close()
