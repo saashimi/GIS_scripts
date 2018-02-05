@@ -30,7 +30,7 @@ def sublist_writer(list_in):
     if not last_line:
         # newlines for every line except last one
         str = str + '\n' 
-    dest.write(str)
+    return str
 
 def network_parser(list_in):
     # main dwt, ttf parser
@@ -74,34 +74,39 @@ def network_editor(orig_network, network_slice, dwt_in, ttf_in, index_start, ind
 
     return orig_network
 
-# Initial flag and list states
-parse_following_lines=False
-temp_list = []
-with open('d221.2015_RTP18_pm2', 'r') as src:
-    with open('2test_out', 'w') as dest:
-        for line in src:
-            # Writes header row and breaks loop if transit line of interest
-            if "a'{0}".format(search_transit_line) in line: 
-                dest.write(line)
-                parse_following_lines=True
-                continue
+def main():
+    # Initial flag and list states
+    parse_following_lines=False
+    temp_list = []
+    with open('d221.2015_RTP18_pm2', 'r') as src:
+        with open('2test_out', 'w') as dest:
+            for line in src:
+                # Writes header row and breaks loop if transit line of interest
+                if "a'{0}".format(search_transit_line) in line: 
+                    dest.write(line)
+                    parse_following_lines=True
+                    continue
 
-            if parse_following_lines:
-                # Converts raw text lines into list items
-                line_list = line_as_list(line)
-                for item in line_list:
-                    temp_list.append(item)
-           
-            if parse_following_lines and 'lay=0' in line:            
-                # Begin parsing accumulated list items
-                parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list)
-                edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e)
-                parse_following_lines=False
-                generated = line_to_list_generator(edited_network)
-                for sublist in generated:
-                    sublist_writer(sublist)
-                temp_list = []
+                if parse_following_lines:
+                    # Converts raw text lines into list items
+                    line_list = line_as_list(line)
+                    for item in line_list:
+                        temp_list.append(item)
+               
+                if parse_following_lines and 'lay=0' in line:            
+                    # Begin parsing accumulated list items
+                    parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list)
+                    edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e)
+                    parse_following_lines=False
+                    generated = line_to_list_generator(edited_network)
+                    for sublist in generated:
+                        write_str = sublist_writer(sublist)
+                        dest.write(write_str)
 
+                    temp_list = []
 
-src.close()
-dest.close()
+    src.close()
+    dest.close()
+
+if __name__ == '__main__':
+    main()
