@@ -1,8 +1,9 @@
+
 ##################################
 # TODO: Develop payload system to systematize bulk changes
-search_transit_line = '12TPa'
-search_stop_init = '57738' # new ttf, dwt inserted BEFORE this stop
-search_stop_end = '80359'  # previous ttf, dwt inserted AFTER this stop
+edit_transit_line = '12TPa'
+init_stop_ID = '57738' # new ttf, dwt inserted BEFORE this stop
+end_stop_ID = '80359'  # previous ttf, dwt inserted AFTER this stop
 new_dwt = 'dwt=*.01' 
 new_ttf = 'ttf=11'
 ##################################
@@ -33,14 +34,14 @@ def network_parser(list_in):
     current_dwt = ''
     current_ttf = ''
     edit_network = []
-    init_index = list_in.index(search_stop_init)
-    end_index = list_in.index(search_stop_end) + 1
+    init_index = list_in.index(init_stop_ID)
+    end_index = list_in.index(end_stop_ID) + 1
     for item in list_in:
         if 'dwt' in item:
             current_dwt = item
         if 'ttf' in item:
             current_ttf = item
-        if search_stop_init == item:
+        if init_stop_ID == item:
             edit_network = list_in[init_index:end_index]
     return edit_network, current_dwt, current_ttf, init_index, end_index
 
@@ -74,7 +75,7 @@ def main():
         with open('2test_out', 'w') as dest:
             for line in src:
                 # Writes header row and breaks loop if transit line of interest
-                if "a'{0}".format(search_transit_line) in line: 
+                if "a'{0}".format(edit_transit_line) in line: 
                     dest.write(line)
                     parse_following_lines=True
                     continue
