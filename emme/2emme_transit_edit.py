@@ -1,8 +1,8 @@
 ##################################
 # TODO: Develop payload system to systematize bulk changes
-search_transit_line = '68C'
-search_stop_init = '80356'
-search_stop_end = '61081'
+search_transit_line = '12TPa'
+search_stop_init = '57738' # ttf, dwt defined BEFORE this stop
+search_stop_end = '80359'  # previous ttf, dwt defined AFTER this stop
 new_dwt = 'dwt=*.01' 
 new_ttf = 'ttf=11'
 ##################################
@@ -39,7 +39,7 @@ def network_parser(list_in):
     current_dwt = ''
     current_ttf = ''
     edit_network = []
-    init_index = list_in.index(search_stop_init) + 1
+    init_index = list_in.index(search_stop_init)
     end_index = list_in.index(search_stop_end) + 1
     for item in list_in:
         if 'dwt' in item:
