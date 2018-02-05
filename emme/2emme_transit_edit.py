@@ -1,8 +1,8 @@
 ##################################
 # TODO: Develop payload system to systematize bulk changes
 search_transit_line = '12TPa'
-search_stop_init = '57738' # ttf, dwt defined BEFORE this stop
-search_stop_end = '80359'  # previous ttf, dwt defined AFTER this stop
+search_stop_init = '57738' # new ttf, dwt inserted BEFORE this stop
+search_stop_end = '80359'  # previous ttf, dwt inserted AFTER this stop
 new_dwt = 'dwt=*.01' 
 new_ttf = 'ttf=11'
 ##################################
@@ -18,19 +18,13 @@ def line_to_list_generator(list_in):
 
 def sublist_writer(list_in):
     str = ''
-    last_line=False
     for item in list_in:
         if item.startswith(('dwt', 'ttf')):
-            column = ' {:^9}'.format(item) # note leading space
+            column = ' {:^8}'.format(item) # note leading space
         else:
-            if item == 'lay=0':
-                last_line=True
-            column = '{:>9} '.format(item) # note trailing space
+            column = '{:>8} '.format(item) # note trailing space
         str = str + column
-    if not last_line:
-        # newlines for every line except last one
-        str = str + '\n' 
-    return str
+    return str + '\n'
 
 def network_parser(list_in):
     # main dwt, ttf parser
@@ -95,13 +89,15 @@ def main():
                     # Begin parsing accumulated list items
                     parsed_network, dwt, ttf, index_i, index_e = network_parser(temp_list)
                     edited_network = network_editor(temp_list, parsed_network, dwt, ttf, index_i, index_e)
-                    parse_following_lines=False
                     generated = line_to_list_generator(edited_network)
                     for sublist in generated:
-                        write_str = sublist_writer(sublist)
-                        dest.write(write_str)
-
+                        dest.write(sublist_writer(sublist))
                     temp_list = []
+                    parse_following_lines=False
+
+                if not parse_following_lines:
+                    if 'lay=0' not in line:
+                        dest.write(line)
 
     src.close()
     dest.close()
