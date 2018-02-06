@@ -1,7 +1,7 @@
 import sys
 import csv
 
-def line_as_list(line_in):  
+def line_as_list(line_in, line_number):  
     return filter(None, line_in.rstrip().split(' '))
 
 def line_to_list_generator(list_in):
@@ -64,12 +64,12 @@ def main(network_file, edit_payload):
     edited_file = network_file + '_edit'
     parse_following_lines=False
     temp_list = []
+    cached_line_numbers = []
 
     with open(network_file, 'r') as src:
         # Allow for looping through orig. network file
         lines = src.read().splitlines(True)
         line_number = 0
-        orig_counter = []
 
         with open(edit_payload, 'rb') as edits:
             with open(edited_file, 'w') as dest:
@@ -82,22 +82,23 @@ def main(network_file, edit_payload):
                     new_dwt = row[3] 
                     new_ttf = row[4]
 
-                    print lines[line_number]
-                    lines = lines[line_number + sum(orig_counter):]
-                    for line in lines:
-                        line_number += 1
+                    print "line number = ", line_number
+                    indexed_lines = lines[line_number:]
+                    print "line number[0] = ", indexed_lines[0]
+                    print indexed_lines[line_number]
 
+                    for line in indexed_lines:
+                        line_number += 1
+                        skip_test=False
                         # Writes header row and breaks loop if transit line of interest
                         if "a'{0}".format(edit_transit_line) in line: 
                             dest.write(line)
                             parse_following_lines=True
-                            orig_counter.append(1)
                             continue
 
                         if parse_following_lines:
                             # Converts raw text lines into list items
-                            line_list = line_as_list(line)
-                            orig_counter.append(1)  
+                            line_list = line_as_list(line, line_number)
                             for item in line_list:
                                 temp_list.append(item)
                        
@@ -110,13 +111,12 @@ def main(network_file, edit_payload):
                                 dest.write(sublist_writer(sublist))
                             temp_list = []
                             parse_following_lines=False
-                            orig_counter.append(1)  
-
+                            print "line before break = " + str(line_number)
+                            cached_line_numbers.append(line_number)
                             break
                         
                         if not parse_following_lines:
                             dest.write(line)
-
 
     edits.close()
     src.close()
