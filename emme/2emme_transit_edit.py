@@ -81,15 +81,10 @@ def main(network_file, edit_payload):
                     end_stop_ID = row[2]  # previous ttf, dwt inserted AFTER this stop
                     new_dwt = row[3] 
                     new_ttf = row[4]
-
-                    print "line number = ", line_number
                     indexed_lines = lines[line_number:]
-                    print "line number[0] = ", indexed_lines[0]
-                    print indexed_lines[line_number]
 
                     for line in indexed_lines:
                         line_number += 1
-                        skip_test=False
                         # Writes header row and breaks loop if transit line of interest
                         if "a'{0}".format(edit_transit_line) in line: 
                             dest.write(line)
@@ -117,6 +112,12 @@ def main(network_file, edit_payload):
                         
                         if not parse_following_lines:
                             dest.write(line)
+
+                indexed_lines = lines[line_number:]
+                for line in indexed_lines:
+                    dest.write(line)
+            
+
 
     edits.close()
     src.close()
