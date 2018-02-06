@@ -68,7 +68,7 @@ def main(network_file, edit_payload):
     with open(network_file, 'r') as src:
         # Allow for looping through orig. network file
         lines = src.read().splitlines(True)
-        line_number = 0 
+        line_number = 0
         orig_counter = []
 
         with open(edit_payload, 'rb') as edits:
@@ -82,7 +82,8 @@ def main(network_file, edit_payload):
                     new_dwt = row[3] 
                     new_ttf = row[4]
 
-                    lines = lines[line_number + sum(orig_counter) + 1:]
+                    print lines[line_number]
+                    lines = lines[line_number + sum(orig_counter):]
                     for line in lines:
                         line_number += 1
 
@@ -90,6 +91,7 @@ def main(network_file, edit_payload):
                         if "a'{0}".format(edit_transit_line) in line: 
                             dest.write(line)
                             parse_following_lines=True
+                            orig_counter.append(1)
                             continue
 
                         if parse_following_lines:
@@ -108,12 +110,13 @@ def main(network_file, edit_payload):
                                 dest.write(sublist_writer(sublist))
                             temp_list = []
                             parse_following_lines=False
-                            print sum(orig_counter)
+                            orig_counter.append(1)  
+
                             break
                         
                         if not parse_following_lines:
                             dest.write(line)
-                        
+
 
     edits.close()
     src.close()
