@@ -67,7 +67,10 @@ def main(network_file, edit_payload):
 
     with open(network_file, 'r') as src:
         # Allow for looping through orig. network file
-        lines = src.read().splitlines(True) 
+        lines = src.read().splitlines(True)
+        line_number = 0 
+        orig_counter = []
+
         with open(edit_payload, 'rb') as edits:
             with open(edited_file, 'w') as dest:
                 reader = csv.reader(edits)
@@ -79,7 +82,10 @@ def main(network_file, edit_payload):
                     new_dwt = row[3] 
                     new_ttf = row[4]
 
+                    lines = lines[line_number + sum(orig_counter) + 1:]
                     for line in lines:
+                        line_number += 1
+
                         # Writes header row and breaks loop if transit line of interest
                         if "a'{0}".format(edit_transit_line) in line: 
                             dest.write(line)
@@ -89,6 +95,7 @@ def main(network_file, edit_payload):
                         if parse_following_lines:
                             # Converts raw text lines into list items
                             line_list = line_as_list(line)
+                            orig_counter.append(1)  
                             for item in line_list:
                                 temp_list.append(item)
                        
@@ -101,11 +108,12 @@ def main(network_file, edit_payload):
                                 dest.write(sublist_writer(sublist))
                             temp_list = []
                             parse_following_lines=False
-
-                        """
+                            print sum(orig_counter)
+                            break
+                        
                         if not parse_following_lines:
-                                dest.write(line)
-                        """
+                            dest.write(line)
+                        
 
     edits.close()
     src.close()
