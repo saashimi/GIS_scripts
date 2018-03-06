@@ -1,0 +1,4 @@
+edit_transit_network,init_stop_ID,end_stop_ID,new_dwt,new_ttf
+09Pa,59862,56187,dwt=*.01,ttf=11
+12TPa,57738,80359,dwt=*.01,ttf=11
+16SSa,55166,58591,dwt=*.01,ttf=11
