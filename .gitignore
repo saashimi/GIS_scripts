@@ -87,3 +87,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Google API
+/google_API/data/*
+/google_TAZ/secrets.py
