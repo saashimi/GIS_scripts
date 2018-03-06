@@ -89,5 +89,8 @@ ENV/
 .ropeproject
 
 # Google API
-/google_API/data/*
-/google_TAZ/secrets.py
+google_TAZ/data/*
+google_TAZ/secrets.py
+
+# VS Code 
+.vscode/
