@@ -91,3 +91,6 @@ ENV/
 # Google API
 google_TAZ/data/*
 google_TAZ/secrets.py
+
+# VS Code 
+.vscode/
