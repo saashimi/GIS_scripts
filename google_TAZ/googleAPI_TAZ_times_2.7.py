@@ -8,7 +8,7 @@ Script queries a specific location from a feature class, and gets a travel time
 to the centroid of each TAZ.date used was calculated by entering date from
  https://www.epochconverter.com/
 
-Script written by Al Mowbray, Metro
+Original script written by Al Mowbray, Metro
 Ported to Python 2.7 by Kevin Saavedra
 ****************************************************************************"""
 
@@ -75,7 +75,9 @@ def main():
             url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
             payload = 'origins={0}'\
                       '&destinations={1}'\
-                      '&mode=driving&language=en-EN&sensor=false'\
+                      '&mode=driving'\
+                      '&language=en-EN'\
+                      '&sensor=false'\
                       '&key={2}'\
                       '&departure_time={3}'\
                 .format(str(dest_xy), str(station_xy), APIKEY, querytime)
