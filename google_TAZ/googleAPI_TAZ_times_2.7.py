@@ -107,6 +107,7 @@ def main():
     arcpy.env.workspace = wd
     taz = wd + 'taz_pt_w_coords.shp'
     stations = wd + 'transfer_stations_w_TAZ.shp'
+    ###########################################################################
     querytime = str(1546156800)  # Seconds since midnight 1/1/1970, UTC
     # Currently hardcoded for midnight 12/30/2018 Pacific time.
 
