@@ -11,10 +11,11 @@ edit_transit_network, init_stop_ID, end_stop_ID, new_dwt, new_ttf
 #NOTE: Does not currently support instances of two stop IDs occuring within
 same network.  
 """
-__author__='Kevin Saavedra'
+__author__ = 'Kevin Saavedra'
 
 import sys
 import csv
+
 
 def line_as_list(line_in, line_number):
     # Converts raw text lines to cleaned lists.  
@@ -152,6 +153,7 @@ def main(network_file, edit_payload):
     edits.close()
     src.close()
     dest.close()
+
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
