@@ -9,7 +9,7 @@ to the centroid of each TAZ.date used was calculated by entering date from
  https://www.epochconverter.com/
 
 Original script written by Al Mowbray, Metro
-Ported to Python 2.7 by Kevin Saavedra
+Ported to Python 2.7, Flake8 compliance by Kevin Saavedra
 ****************************************************************************"""
 
 from secrets import APIKEY
@@ -42,24 +42,17 @@ def rows_as_update_dicts(cursor):
         cursor.updateRow([row_object[colname] for colname in colnames])
 
 
-def main():
-    arcpy.env.overwriteOutput = True
-    wd = 'M:\\plan\\trms\\staff\\saavedrak\\projects\\GIS_scripts\\google_TAZ'\
-         '\\data\\'
-    # CHANGE TO WHERE YOU WANT TO WORK
-    arcpy.env.workspace = wd
-    taz = wd + 'taz_pt_w_coords.shp'
-    stations = wd + 'transfer_stations_w_TAZ.shp'
-    querytime = str(1546156800)
-    # Midnight 12/30/2018 Pacific time, requires time in the future, seconds
-    # since midnight 1/1/1970, UTC
-
-    start_time = time.time()
-    print('starting part 1...')
-
-    # Get the coordinates of the desired transfer station
+def stations_to_coords(stations_in, taz_in):
+    """Get the coordinates of the desired transfer station.
+    Args:
+        stations_in: A shapefile containing station centroids.
+        taz_in: A shapefile containing TAZ point centroids.
+    Returns:
+        field_names: A list of transfer station names.
+        station_xy: A single string in Y,X coordinate format.
+    """
     fac_query = "FAC_NAME = 'Metro Central'"
-    arcpy.MakeFeatureLayer_management(stations, 'station_lyr', fac_query)
+    arcpy.MakeFeatureLayer_management(stations_in, 'station_lyr', fac_query)
     count = arcpy.GetCount_management('station_lyr')
     printtext = 'station layer has {} features.'.format(count[0])
     print(printtext)
@@ -68,8 +61,20 @@ def main():
         for row in rows_as_update_dicts(sc):
             station_xy = str(row['POINT_Y']) + ',' + str(row['POINT_X'])
 
-    field_names = [f.name for f in arcpy.ListFields(taz)]
-    with arcpy.da.UpdateCursor(taz, field_names) as sc:
+    field_names = [f.name for f in arcpy.ListFields(taz_in)]
+    return field_names, station_xy
+
+
+def get_API_times(taz_in, field_names_in, stations_xy_in, querytime_in):
+    """Access Google distance matrix API with provided API KEY.
+    Args:
+        taz_in: A shapefile containing TAZ point centroids.
+        field_names_in: A list of transfer station names.
+        stations_xy_in: A single string in Y,X coordinate format.
+        querytime_in: Querytime in Epoch format.
+    Returns: None.
+    """
+    with arcpy.da.UpdateCursor(taz_in, field_names_in) as sc:
         for row in rows_as_update_dicts(sc):
             dest_xy = str(row['POINT_Y']) + ',' + str(row['POINT_X'])
             url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'
@@ -80,7 +85,8 @@ def main():
                       '&sensor=false'\
                       '&key={2}'\
                       '&departure_time={3}'\
-                .format(str(dest_xy), str(station_xy), APIKEY, querytime)
+                .format(str(dest_xy), str(stations_xy_in), APIKEY,
+                        querytime_in)
             url = url + payload
             result = simplejson.load(urllib.urlopen(url))
             driving_time = (result['rows'][0]
@@ -93,6 +99,21 @@ def main():
             # frequent requests.
             time.sleep(1)
 
+
+def main():
+    arcpy.env.overwriteOutput = True
+    wd = 'M:\\plan\\trms\\staff\\saavedrak\\projects\\GIS_scripts\\google_TAZ'\
+         '\\data\\'
+    arcpy.env.workspace = wd
+    taz = wd + 'taz_pt_w_coords.shp'
+    stations = wd + 'transfer_stations_w_TAZ.shp'
+    querytime = str(1546156800)  # Seconds since midnight 1/1/1970, UTC
+    # Currently hardcoded for midnight 12/30/2018 Pacific time.
+
+    start_time = time.time()
+    print('starting part 1...')
+    fnames, s_xy = stations_to_coords(stations, taz)
+    get_API_times(taz, fnames, s_xy, querytime)
     end_time = time.time()
     timetext = 'Script complete! Total run time: {}'.format(
         hms_string(end_time - start_time))
