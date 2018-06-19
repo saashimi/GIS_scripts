@@ -15,13 +15,11 @@ def main():
     join_table = os.path.join(str(p), 'volumes.csv')
     join_field = 'UNIQUEID'
 
-    row_output = os.path.join(str(p), 'volumes_converted.csv')
-    arcpy.CopyRows_management(join_table, row_output)
-    
+  
     joined_file = arcpy.JoinField_management(
                                             links_shapefile,
                                             in_field,
-                                            row_output,
+                                            join_table,
                                             join_field)
 
     arcpy.FeatureClassToShapefile_conversion(joined_file, 

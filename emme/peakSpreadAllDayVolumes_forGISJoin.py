@@ -66,11 +66,11 @@ def get_data(bank, attribute = 1):
 def write_file(links,capacity, attribute):                     
     att_name = {1:"volumes.csv", 2:"vehicle_volumes.csv"}                
     with open(att_name[attribute], "wb") as f:
-        header = ["UNIQUEID","From","To","Capacity"] + times()
+        header = ["OBJECTID", "UNIQUE","From","To","Capacity"] + times()
         csv_writer = csv.writer(f)
         csv_writer.writerow(header)
         for k,v in links.iteritems():
-            #unique = "L{}".format(k.replace("-",""))
+            oid = k.replace("-","")
             unique = k
             fr, to = k.split("-")
             #Check volumes commments for clarification
