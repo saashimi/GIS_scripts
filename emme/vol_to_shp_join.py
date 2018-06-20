@@ -17,7 +17,6 @@ def main():
     in_field = 'ID'
     join_table = os.path.join(str(p), 'volumes.csv')
     join_field = 'UNIQUEID'
-    emme_links_edited = os.path.join(str(p), 'New_Project', 'Media', 'emme_links_edited.shp') 
 
 
     arcpy.TableToTable_conversion(join_table, str(p), 'volumes_converted.dbf' )

@@ -66,7 +66,7 @@ def get_data(bank, attribute = 1):
 def write_file(links,capacity, attribute):                     
     att_name = {1:"volumes.csv", 2:"vehicle_volumes.csv"}                
     with open(att_name[attribute], "wb") as f:
-        header = ["OBJECTID", "UNIQUEID","From","To","Capacity"] + times()
+        header = ["UNIQUEID","From","To","Capacity"] + times()
         csv_writer = csv.writer(f)
         csv_writer.writerow(header) 
         for k,v in links.iteritems():
