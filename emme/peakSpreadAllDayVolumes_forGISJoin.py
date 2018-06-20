@@ -68,15 +68,12 @@ def write_file(links,capacity, attribute):
     with open(att_name[attribute], "wb") as f:
         header = ["OBJECTID", "UNIQUEID","From","To","Capacity"] + times()
         csv_writer = csv.writer(f)
-        csv_writer.writerow(header)
-        oid = 0
+        csv_writer.writerow(header) 
         for k,v in links.iteritems():
-            oid += 1
             unique = k
-            oid = k.replace("-","")
             fr, to = k.split("-")
             #Check volumes commments for clarification
-            csv_writer.writerow([oid,unique,fr,to,capacity[k]] + volumes(v))
+            csv_writer.writerow([unique,fr,to,capacity[k]] + volumes(v))
 
 if __name__ == "__main__":
     main()          
