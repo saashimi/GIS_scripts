@@ -1,6 +1,15 @@
 """
 Join volume CSV to ArcGIS Script.
 By Kevin Saavedra, Metro, kevin.saavedra@oregonmetro.gov
+
+This script takes the output volume table of 
+`peakSpreadAllDayVolumes_forGISJoin.py` and joins it to the `emme_links.shp`
+file using the ArcGIS API.
+
+The pathlib library is used for more elegant navigation of files in parent
+folders.
+
+This script is intended to be run from the model/peak/assignAllHours folder.
 """
 
 import arcpy
@@ -9,11 +18,15 @@ from pathlib import Path
 import datetime as dt
 
 def main():
-    # Go up TWO FOLDERS
     startTime = dt.datetime.now()
     print("Script run at {0}.".format(startTime))
-    p = Path(__file__).parents[2]
-    links_shapefile = os.path.join(str(p), 'New_Project', 'Media', 'emme_links.shp') 
+    
+    p = Path(__file__).parents[0]
+    
+    # `Scenario_1024` should be changed to the appropriate scenario number 
+    # output by Emme.
+    links_shapefile = os.path.join(str(p), 'New_Project', 'Media', 
+                                           'Scenario_1024', 'emme_links.shp') 
     in_field = 'ID'
     join_table = os.path.join(str(p), 'volumes.csv')
     join_field = 'UNIQUEID'
