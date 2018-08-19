@@ -1,25 +1,31 @@
-# import the pretty print module, urllib2, and json
+"""
+A Python2 script for prototype work.
+Written for Python 2
+"""
+
 from pprint import pprint 
-import urllib2
-import json 
+import requests
+import requests_cache
+from SECRETS import APIKEY 
 
 city = raw_input('Type the name of the city in which to obtain weather data.')
-url1 = 'http://api.openweathermap.org/data/2.5/weather?q='
-url2 = str(url1 + city)
-json_obj = urllib2.urlopen(url2)
-data = json.load(json_obj) # data is type 'dict'
+payload = {'q': city, 'APPID': APIKEY}
+
+requests_cache.install_cache('owm_cache', expire_after=300)
+data = requests.get('https://api.openweathermap.org/data/2.5/forecast', params=payload).json()
 
 #deg Fahrenheit data extraction
-deg_C = data['main']['temp'] - 273 
+deg_C = data['list'][0]['main']['temp'] - 273 
 deg_F = deg_C * 1.8 + 32
 #Forecast High
-degMax_C = data['main']['temp_max'] - 273
+degMax_C = data['list'][0]['main']['temp_max'] - 273
 degMax_F = degMax_C * 1.8 + 32
 #Forecast Low
-degMin_C = data['main']['temp_min'] - 273
+degMin_C = data['list'][0]['main']['temp_min'] - 273
 degMin_F = degMin_C * 1.8 + 32
 # current weather
-current_weather = data['weather'][0]['description']
+current_weather = data['list'][0]['weather'][0]['description']
+
 
 #pprint(data)
 print "The current temperature in " + city + " is " + str(deg_F) + " degrees Fahrenheit", "(" + str(deg_C) + " degrees Celsius)."
