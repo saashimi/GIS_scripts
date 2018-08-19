@@ -94,3 +94,6 @@ google_TAZ/secrets.py
 
 # VS Code 
 .vscode/
+
+# SECRETS
+SECRETS*
