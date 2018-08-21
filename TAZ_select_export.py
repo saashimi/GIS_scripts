@@ -25,12 +25,15 @@ tazs = ['Legacy', 'OHSU', 'Providence', 'Project']
 scenarios = ['AM_SOV_2015', 'AM_TRANSIT_2015', 'MD_SOV_2015',
              'MD_TRANSIT_2015', 'AM_SOV_2027FC', 'AM_TRANSIT_2027FC',
              'MD_SOV_2027FC', 'MD_TRANSIT_2027FC']
-intervals = ['<=15', '<=30']
 
 # os.setcwd('I:/ModServStaff/saavedra/misc/WashCo_Contours/')
 export_folder = os.path.join(os.getcwd(), 'exports')
 
 for scenario in scenarios:
+    if 'TRANSIT' in scenario:
+        intervals = ['<=40', '<=60']
+    if 'SOV' in scenario:
+        intervals = ['<=15', '<=30']
     for taz in tazs:
         for interval in intervals:
             selection = arcpy.SelectLayerByAttribute_management(
