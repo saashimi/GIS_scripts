@@ -31,7 +31,7 @@ export_folder = os.path.join(os.getcwd(), 'exports')
 
 for scenario in scenarios:
     if 'TRANSIT' in scenario:
-        intervals = ['<=40', '<=60']
+        intervals = ['<=45', '<=60']
     if 'SOV' in scenario:
         intervals = ['<=15', '<=30']
     for taz in tazs:
