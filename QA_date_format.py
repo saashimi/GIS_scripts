@@ -6,8 +6,8 @@ YYYY/MM/DD HH:MM:SS format
 """
 
 
-fc = r'C:\Users\kev10076\Documents\ArcGIS\Projects\REST_migration\Output\hurricanes_sub4_102100_gapro.shp'
-fields = ['iso_date', 'iso_corr']
+fc = r'C:\Users\kev10076\Documents\ArcGIS\Projects\REST_migration\Rest_migration.gdb\Chicagot'
+fields = ['Date', 'Date_st']
 
 def date_time_handler(str_lst):
     date = str_lst[0].split('/')
