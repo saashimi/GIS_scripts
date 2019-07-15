@@ -1,8 +1,9 @@
 import sys
 import arcpy
 
+arcpy.env.overwriteOutput = True
 
-def main(ds, ds_out):
+def main(ds, ds_out, format):
     data_name = ds
 
     # Copy to data store
@@ -14,7 +15,10 @@ def main(ds, ds_out):
     # Copy to fgdb
     out_gdb = r"C:\Users\kev10076\Documents\ArcGIS\Projects\REST_migration\REST_migration.gdb"
     out_gdb_name = output_name + '_gdb'
-    fgdb_data = arcpy.conversion.FeatureClassToFeatureClass(ds_data, out_gdb, out_gdb_name)
+    if format == 'shp':
+        fgdb_data = arcpy.conversion.FeatureClassToFeatureClass(ds_data, out_gdb, out_gdb_name)
+    if format == 'csv':
+        fgdb_data = arcpy.TableToTable_conversion(ds_data, out_gdb, out_gdb_name)
 
     # Convert time field
     input_time_field = 'instant_datetime'
@@ -25,11 +29,14 @@ def main(ds, ds_out):
     time_fgdb_data = arcpy.management.ConvertTimeField(fgdb_data, input_time_field, input_time_format, output_time_field,
                                                        output_time_type, output_time_format)
 
-    # Save to shp
-    out_shp = ds_out + '.shp'
     out_folder = r"C:\Users\kev10076\Documents\ArcGIS\Projects\REST_migration\Output"
-    arcpy.conversion.FeatureClassToFeatureClass(time_fgdb_data, out_folder, out_shp)
-
+    # Save to shp
+    if format == 'shp':
+        out_format = ds_out + '.shp'
+        arcpy.conversion.FeatureClassToFeatureClass(time_fgdb_data, out_folder, out_format)
+    elif format == 'csv':
+        out_format = ds_out + '.csv'
+        arcpy.TableToTable_conversion(time_fgdb_data, out_folder, out_format)
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
